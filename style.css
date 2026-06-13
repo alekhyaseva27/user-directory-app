@@ -1,0 +1,30 @@
+html{
+    scroll-behavior: smooth;
+}
+
+body{
+    font-family: Arial, sans-serif;
+}
+
+.hero{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#007bff,#6610f2);
+    color:white;
+    text-align:center;
+}
+
+section{
+    padding-top:80px;
+}
+
+.card{
+    margin-bottom:20px;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
