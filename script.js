@@ -1,95 +1,56 @@
-const questions = [
-    {
-        question: "What does HTML stand for?",
-        options: [
-            { text: "Hyper Text Markup Language", correct: true },
-            { text: "High Text Machine Language", correct: false },
-            { text: "Hyper Transfer Markup Language", correct: false },
-            { text: "None", correct: false }
-        ]
-    },
-    {
-        question: "Which language runs in browser?",
-        options: [
-            { text: "Java", correct: false },
-            { text: "C", correct: false },
-            { text: "JavaScript", correct: true },
-            { text: "Python", correct: false }
-        ]
-    },
-    {
-        question: "CSS is used for?",
-        options: [
-            { text: "Structuring web pages", correct: false },
-            { text: "Styling web pages", correct: true },
-            { text: "Database", correct: false },
-            { text: "Server-side logic", correct: false }
-        ]
+const usersContainer = document.getElementById("users");
+const loading = document.getElementById("loading");
+const error = document.getElementById("error");
+const search = document.getElementById("search");
+
+let usersData = [];
+
+async function fetchUsers() {
+    try {
+        loading.style.display = "block";
+
+        const response = await fetch(
+            "https://jsonplaceholder.typicode.com/users"
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch data");
+        }
+
+        usersData = await response.json();
+
+        displayUsers(usersData);
+
+        loading.style.display = "none";
     }
-];
+    catch(err){
+        loading.style.display = "none";
+        error.textContent = err.message;
+    }
+}
 
-let currentIndex = 0;
-let score = 0;
+function displayUsers(users){
+    usersContainer.innerHTML = "";
 
-const questionEl = document.getElementById("question");
-const optionsEl = document.getElementById("options");
-const nextBtn = document.getElementById("nextBtn");
-const progressEl = document.getElementById("progress");
-
-function showQuestion() {
-    reset();
-
-    let q = questions[currentIndex];
-    questionEl.innerText = q.question;
-    progressEl.innerText = `Question ${currentIndex + 1} of ${questions.length}`;
-
-    q.options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.innerText = opt.text;
-        btn.classList.add("option");
-
-        btn.onclick = () => selectAnswer(btn, opt.correct);
-
-        optionsEl.appendChild(btn);
+    users.forEach(user => {
+        usersContainer.innerHTML += `
+            <div class="card">
+                <h3>${user.name}</h3>
+                <p>Email: ${user.email}</p>
+                <p>City: ${user.address.city}</p>
+            </div>
+        `;
     });
 }
 
-function selectAnswer(btn, correct) {
-    const allBtns = document.querySelectorAll(".option");
+search.addEventListener("input", () => {
+    const value = search.value.toLowerCase();
 
-    allBtns.forEach(b => b.disabled = true);
+    const filtered = usersData.filter(user =>
+        user.name.toLowerCase().includes(value)
+    );
 
-    if (correct) {
-        btn.classList.add("correct");
-        score++;
-    } else {
-        btn.classList.add("wrong");
-    }
+    displayUsers(filtered);
+});
 
-    nextBtn.style.display = "block";
-}
-
-function reset() {
-    nextBtn.style.display = "none";
-    optionsEl.innerHTML = "";
-}
-
-nextBtn.onclick = () => {
-    currentIndex++;
-
-    if (currentIndex < questions.length) {
-        showQuestion();
-    } else {
-        showResult();
-    }
-};
-
-function showResult() {
-    document.getElementById("quiz-box").classList.add("hide");
-    document.getElementById("result-box").classList.remove("hide");
-
-    document.getElementById("score").innerText =
-        `You scored ${score} out of ${questions.length}`;
-}
-
-showQuestion();
+fetchUsers();
